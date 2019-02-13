@@ -15,5 +15,5 @@
     <type>plugins.generic</type>
     <release>1.0.0.0</release>
     <date>2019-01-31</date>
-    <class>JurnalClub</class>
+    <class>JurnalClubPlugin</class>
 </version>
