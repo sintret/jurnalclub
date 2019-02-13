@@ -15,8 +15,8 @@
  * @brief Wrapper for usage event plugin.
  *
  */
-require_once('JurnalClub.php');
+require_once('JurnalClubPlugin.inc.php');
 
-return new JurnalClub();
+return new JurnalClubPlugin();
 
 ?>

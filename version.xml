@@ -2,18 +2,18 @@
 <!DOCTYPE version SYSTEM "../../../lib/pkp/dtd/pluginVersion.dtd">
 
 <!--
-  * plugins/generic/usageEvent/version.xml
-  *
-  * Copyright (c) 2014-2018 Simon Fraser University
-  * Copyright (c) 2003-2018 John Willinsky
-  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
-  *
-  * Plugin version information.
-  -->
+* plugins/generic/usageEvent/version.xml
+*
+* Copyright (c) 2014-2018 Simon Fraser University
+* Copyright (c) 2003-2018 John Willinsky
+* Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+*
+* Plugin version information.
+-->
 <version>
-	<application>JurnalClub</application>
-	<type>plugins.generic</type>
-	<release>1.0.0.0</release>
-	<date>2019-01-31</date>
+    <application>jurnalClub</application>
+    <type>plugins.generic</type>
+    <release>1.0.0.0</release>
+    <date>2019-01-31</date>
     <class>JurnalClub</class>
 </version>
