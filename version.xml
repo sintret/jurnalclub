@@ -11,9 +11,28 @@
 * Plugin version information.
 -->
 <version>
-    <application>jurnalClub</application>
+    <application>jurnalclub</application>
     <type>plugins.generic</type>
     <release>1.0.0.0</release>
     <date>2019-01-31</date>
     <class>JurnalClubPlugin</class>
+</version>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE version SYSTEM "../../../lib/pkp/dtd/pluginVersion.dtd">
+
+<!--
+  * plugins/generic/jurnal/version.xml
+  *
+  * Copyright (c) 2013-2015 Simon Fraser University Library
+  * Copyright (c) 2003-2015 John Willinsky
+  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+  *
+  * Plugin version information.
+  -->
+<version>
+	<application>jurnalclub</application>
+	<type>plugins.generic</type>
+	<release>1.0.1.0</release>
+	<date>2019-02-02</date>
+	<class>JurnalClubPlugin</class>
 </version>
