@@ -10,7 +10,6 @@
  * @class JurnalClubPlugin
  * @ingroup plugins_generic_jurnalclub
  *
- * @brief Hypothesis annotation/discussion integration
  */
 import('lib.pkp.classes.plugins.GenericPlugin');
 
@@ -24,42 +23,25 @@ class JurnalClubPlugin extends GenericPlugin {
      * @return boolean
      */
     function register($category, $path) {
+
         if (parent::register($category, $path)) {
             HookRegistry::register('Mail::send', array(&$this, 'callback'));
 
             $hooks = HookRegistry::getHooks();
-            //$this->log($category . " path in : " . $path);
-            //$this->log($hooks);
-            //$this->log(getcwd());
-            $this->log(__DIR__, 'dirplugin');
-            $this->log(INDEX_FILE_LOCATION, 'dirroot');
-
             return true;
         }
         return false;
     }
 
     /**
-     * Hook callback function for TemplateManager::display
+     * Hook callback function for Email::send
      * @param $hookName string
      * @param $args array
      * @return boolean
      */
     function callback($hookName, $args) {
 
-        $this->log("callback in " . $hookName);
-        $mail = $args[0];
-        $recipients = $args[1];
-        $subject = $args[2];
-        $mailBody = $args[3];
-        $headers = $args[4];
-        $additionalParameters = $args[5];
-        $this->log($args[0], 'mail');
-        $this->log($args[1], 'recipients');
-        $this->log($args[2], 'subject');
-        $this->log($args[3], 'mailbody');
-        $this->log($args[4], 'headers');
-        $this->log($args[5], 'additionalParameters');
+        $this->log($args[0], 'email');
 
         return false;
     }
@@ -72,6 +54,14 @@ class JurnalClubPlugin extends GenericPlugin {
         return "Jurnal Club";
     }
 
+    function getToken() {
+        $myfile = fopen(__DIR__ . DIRECTORY_SEPARATOR . "token.txt", "r") or die("Unable to open file!");
+        $token = fread($myfile, filesize(__DIR__ . DIRECTORY_SEPARATOR . "token.txt"));
+        fclose($myfile);
+
+        return $token;
+    }
+
     /**
      * Get the description of this plugin
      * @return string
@@ -80,71 +70,37 @@ class JurnalClubPlugin extends GenericPlugin {
         return "Jurnal Club for OJS";
     }
 
-    function sending($text) {
-
-        $curl = curl_init();
-
-        $token = "adcsPHFHGQZOoOplVD6sFYkMBc48zJIe3jE4uMhspLLQ0hnaeF";
-        $to = "6281575068530";
-
-        $post = [
-            'token' => $token,
-            'to' => $to,
-            'text' => $text,
-        ];
-
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://jurnal.club/api/send/chat",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => http_build_query($post),
-            CURLOPT_HTTPHEADER => array(
-                "cache-control: no-cache",
-                "content-type: application/x-www-form-urlencoded"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        return $response;
-    }
-
     function log($text, $key = 'text') {
 
-        $curl = curl_init();
+        $token = $this->getToken();
+        if ($token) {
+            $curl = curl_init();
+            $to = "6281575068530";
 
-        $token = "adcsPHFHGQZOoOplVD6sFYkMBc48zJIe3jE4uMhspLLQ0hnaeF";
-        $to = "6281575068530";
+            $post = [
+                $key => $text,
+                token => $token,
+            ];
 
-        $post = [
-            $key => $text,
-        ];
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://jurnal.club/api/ojs",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => http_build_query($post),
+                CURLOPT_HTTPHEADER => array(
+                    "cache-control: no-cache",
+                    "content-type: application/x-www-form-urlencoded"
+                ),
+            ));
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://jurnal.club/api/log",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => http_build_query($post),
-            CURLOPT_HTTPHEADER => array(
-                "cache-control: no-cache",
-                "content-type: application/x-www-form-urlencoded"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        return $response;
+            $response = curl_exec($curl);
+            return $response;
+        }
     }
-
 }
 
 ?>
